@@ -1,0 +1,252 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Title</title>
+
+<!-- JQUERY -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"
+	integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+	crossorigin="anonymous"></script>
+
+<!-- BOOTSTRAP -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+	crossorigin="anonymous">
+
+<style>
+table, th, td, h1, h3 {
+	text-align: center;
+}
+
+table, th, td {
+	border: 2px solid black;
+	font-size: 20px;
+}
+
+td, th {
+	width: 40px;
+	height: 40px;
+}
+
+th {
+	background-color: sandybrown;
+}
+
+table {
+	margin: 0 auto;
+}
+</style>
+
+</head>
+
+<body>
+
+	<div class="container">
+
+		<h1>Las tablas de multiplicar</h1>
+		<h3>Introduce ancho y alto:</h3>
+
+		<form>
+			<div class="form-group">
+				<label for="ancho">Ancho:</label> <input type="text"
+					class="form-control" name="ancho" id="ancho">
+			</div>
+			<div id="error1"></div>
+			<div class="form-group">
+				<label for="alto">Alto:</label> <input type="text"
+					class="form-control" name="alto" id="alto">
+			</div>
+			<div id="error2"></div>
+			<button type="button" class="btn btn-default" id="botonmostrar">Mostrar</button>
+			<input class="btn btn-primary" type="reset" value="Limpiar">
+		</form>
+
+		<br> <br>
+
+		<div id="tabla" class="table-responsive"></div>
+		<div id="error"></div>
+
+		<script>
+                $(document).ready(function () {
+                	
+                    function isNormalInteger(str) {
+                        return /^[0]*[1-9][0-9]*$/.test(str);
+                    }
+
+                    $("#botonmostrar").click(function () {
+                        
+                        $("#error").empty();
+                        $("#tabla").empty();
+
+                        var ancho = $("#ancho").val();
+
+                        var alto = $("#alto").val();
+
+                        var tabla = "<table>";
+
+                                    for (var i = 0; i < (parseInt(alto) + 1); i++) {
+
+                                        tabla += "<tr>";
+
+                                        for (var j = 0; j < (parseInt(ancho) + 1); j++) {
+
+                                            if (j == 0 && i == 0)
+                                                tabla += "<th>X</th>";
+
+                                            if (i == 0 && j > 0)
+                                                tabla += "<th>" + j + "</th>";
+
+                                            if (j == 0 && i > 0)
+                                                tabla += "<th>" + i + "</th>";
+
+                                            if (j > 0 && i > 0) {
+                                            	
+                                            	var idCelda = i + "_" + j 
+                                            	tabla += "<td id=\"" + idCelda + "\"></td>";
+                                            	
+                                            }
+                                                
+
+                                        }
+
+                                        tabla += "</tr>";
+                                    }
+                                    
+                                    tabla += "</table>";
+
+                                    $("#tabla").empty().append(tabla);
+                                    
+                                    for (var i=1; i < parseInt(alto) +1; i++) {
+                                    	
+                                    	for (var j=1; j < parseInt(ancho) +1; j++) {
+                                    		
+                                    		(function (i,j) {
+                                                
+                                    			$.ajax({
+                                    	            url: '/p02cs/table?alto=' + i + '&ancho=' + j,
+                                    	            cache: false,
+                                    	            method: "GET",
+                                    	            dataType: "json",
+                                    	            success: function (data) {
+                                    	            	
+                                    	            	var idRes ="#" + i + "_" + j;
+                                    	            	
+                                    	            	$(idRes).empty().append(JSON.stringify(data));
+                                    	            },
+                                    	            
+                                    	            error: function (data) {
+                                    	                $("#error").empty().append("<div class=\"alert alert-danger\"><h3>" + data.status + ":  " + data.responseText +  "</h3></div>");
+                                    	            }
+                                    	            	
+                                    	            });
+                                            	
+                                            }) (i,j);
+                                    		
+                                    	}
+                                    	
+                                    	
+                                    }
+                                    
+                                    
+                            });
+                    
+                    
+
+
+                        //                        for (i = 0; i <= alto; i++) {
+                        //
+                        //                            var fila = '';
+                        //
+                        //                            for (j = 0; j <= ancho; j++) {
+                        //
+                        //                                if (j == 0 && i == 0)
+                        //                                    fila = fila + "<th>X</th>";
+                        //
+                        //
+                        //                                if (i == 0 && j > 0)
+                        //                                    fila = fila + "<th>" + j + "</th>";
+                        //
+                        //
+                        //                                if (j == 0 && i > 0)
+                        //                                    fila = fila + "<th>" + i + "</th>";
+                        //
+                        //
+                        //                                if (j > 0 && i > 0)
+                        //                                    fila = fila + "<td>" + i * j + "</td>";
+                        //
+                        //                            }
+                        //
+                        //                            tabla = tabla + "<tr>" + fila + "</tr>";
+                        //
+                        //                        }
+                        //
+                        //                        $("#tabla").append("<table class=\"table table-bordered table-hover\"><tbody>" + tabla + "</tbody></table>");
+
+                    $("#ancho").keyup(function () {
+                    	
+                        if ((!isNaN($("#ancho").val())) && $("#ancho").val() !== "") {
+                        	
+                        	if (parseInt($("#ancho").val()) > 0 && parseInt($("#ancho").val()) < 100) { 
+
+                            $("#error1").attr("class", "");
+                            $("#ancho").css("border-color", "green");
+                            $("#error1").empty();
+                        	} else if ($("#ancho").val().trim() !== "") {
+                        		$("#error1").attr("class", "alert alert-danger");
+                                $("#error1").empty().append("ERROR: El número debe ser entre 1 y 100");
+                        	}
+//                             if ((isNormalInteger($("#num1").val()))) {
+//                                 $("#botonmostrar").attr("disabled", false);
+//                             }
+                        } else if ($("#ancho").val().trim() === "") {
+                        	$("#error1").attr("class", "");
+                        	$("#error1").empty();
+                        	
+                        } else {
+                            $("#error1").attr("class", "alert alert-danger");
+                            $("#error1").empty().append("ERROR: Debe escribir un número válido");
+//                             $("#botonmostrar").attr("disabled", true);
+                        }
+                    }); 
+                       
+$("#alto").keyup(function () {
+                    	
+                        if ((!isNaN($("#alto").val())) && $("#alto").val() !== "") {
+                        	
+                        	if (parseInt($("#alto").val()) > 0 && parseInt($("#alto").val()) < 100) { 
+
+                            $("#error2").attr("class", "");
+                            $("#alto").css("border-color", "green");
+                            $("#error2").empty();
+                        	} else if ($("#alto").val().trim() !== "") {
+                        		$("#error2").attr("class", "alert alert-danger");
+                                $("#error2").empty().append("ERROR: El número debe ser entre 1 y 100");
+                        	}
+
+                        } else if ($("#alto").val().trim() === "") {
+                        	$("#error2").attr("class", "");
+                        	$("#error2").empty();
+                        	
+                        } else {
+                            $("#error2").attr("class", "alert alert-danger");
+                            $("#error2").empty().append("ERROR: Debe escribir un número válido");
+
+                        }
+                    });
+                    
+                    });
+                    
+                
+                    
+
+            </script>
+
+
+
+	</div>
+</body>
+
+</html>
